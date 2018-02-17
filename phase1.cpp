@@ -1,50 +1,78 @@
 #include <iostream>
-#include <queue>
-#include <list>
+//#include <list>
 #include <cstdlib>
 #include <random>
-
+#include <queue>
+#include <cmath>
+#include <ctime>
 using namespace std;
 
 class Event{
-  int time;
+  double time;
   int paketLength;
   char type;
-  Event* next;
-  Event* prv;
-
 public:
-  //Event();
+  Event(){
+     setTime(0); setPacketLength(0); setType('n');   // n stands for no type intialization
+  }
+  Event(int t,int l, char c){
+     setTime(t); setPacketLength(l); setType(c);
+  }
   //~Event();
 
-  void setTime(int t){time = t;}
-  int getTime(){return time;}
+  void setTime(double t){time = t;}
+  double getTime() const {return time;}
   void setPacketLength(int l){paketLength = l;}
-  int getPacketLength(){return paketLength;}
+  int getPacketLength() const {return paketLength;}
   void setType(char t){type = t;}
-  int getType(){return type;}
-
-
-
+  int getType() const {return type;}
 };
+
+struct CompareEvent{
+  bool operator()(const Event* lhs, const Event* rhs) const
+  {
+     return lhs->getTime() > rhs->getTime();
+  }
+};
+
+double interArrivalTime(int,double);
+int lengthPacket();
+void processArrivelEvent(Event&);
+
 int const BUFEERSIZE = 10;   // it could be any arbitarry number
-std::list<Event> GEL;
+double const lambda = 1.0;             //arrival rate
+double const miue =  0.5;             //service rat
+double GlobalTime = 0;            // keep track of time
 std::queue<Event> buffer;
+std::priority_queue<Event*, vector<Event*>, CompareEvent> GEL;
 
 
 int main(){
+  srand(time(NULL));
 
-  int time = 0;            // keep track of time
+
+
   int length = 0;          // number of packets in q
-  double lambda = 1.0;             //arrival rate
-  double miue =  0.5;             //service rate
 
 
-  //Event A1 = new Event(setTime(interArrivalTime()),setPacketLength(lengthPacket()),
-                       //setType('A') );
-  //if
+  // GEL.push( new Event( 2, 0, 'a') );
+  // GEL.push( new Event( 5,0, 'd' ) );
+  // GEL.push( new Event( 3,0, 'd' ) );
+  // GEL.push( new Event( 7,0, 'd' ) );
+  //
+  // while ( !GEL.empty() )
+  // {
+  //     Event* n = GEL.top();
+  //     cout << n->getTime() << endl;
+  //     GEL.pop();
+  //
+  //     // Delete pointer that vector contains
+  //     delete n;
+  // }
+  // cin.get();
 
-  //GEL.push_back(A1)
+  GEL.push(new Event(interArrivalTime(GlobalTime, lambda),lengthPacket(),'a'));
+
 
 
   cout << "Hello World ";
@@ -52,13 +80,17 @@ int main(){
 }
 
 // functions
-int interArrivalTime(int time){
-  return time + (rand()% 10 + 1);
+double interArrivalTime(int GlobalTime, double rate){
+  double u = rand() / (RAND_MAX + 1.0);
+  double  negativeExponentialNumber = (-1/rate)*log(1-u);
+  return GlobalTime + negativeExponentialNumber;
 }
 int lengthPacket(){
   return rand()%16 + 1;
 }
-//void processArrivelEvent(Event &A){
-  //time = A.getTime();
+void processArrivelEvent(Event& A){
+  GlobalTime = A.getTime();
+  GEL.push(new Event(interArrivalTime(GlobalTime, lambda),lengthPacket(),'a'));
 
-//}
+
+}
