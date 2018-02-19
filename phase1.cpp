@@ -93,6 +93,7 @@ double interArrivalTime(int GlobalTime, double rate){
 // }
 void processArrivelEvent(const Event& A){
   GlobalTime = A.getTime();
+  //keep track of vector queue length/ time
   GEL.push(new Event(interArrivalTime(GlobalTime, lambda),interArrivalTime(GlobalTime, miue),'a'));
   //GEL.push(new Event(interArrivalTime(GlobalTime, lambda),lengthPacket(),'a'));
   if (server){
@@ -112,6 +113,7 @@ void processArrivelEvent(const Event& A){
     //update statistics
   }
 }
+
 void processDepartureEvent(const Event& A){
   GlobalTime = A.getTime();
   //update statistics
@@ -122,5 +124,4 @@ void processDepartureEvent(const Event& A){
      double newDepartTime = GlobalTime + B.getServiceTime();
      GEL.push(new Event(newDepartTime, B.getServiceTime(), 'd'));
   }
-
 }
