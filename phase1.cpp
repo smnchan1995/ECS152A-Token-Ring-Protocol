@@ -74,7 +74,7 @@ int main(){
   // }
   // cin.get();
 
-  GEL.push(new Event(interArrivalTime(GlobalTime, lambda),interArrivalTime(GlobalTime, miue),'a'));
+  GEL.push(new Event(interArrivalTime(GlobalTime, lambda),interServiceTime(GlobalTime, miue),'a'));
 
 
 
@@ -84,9 +84,19 @@ int main(){
 
 // functions
 double interArrivalTime(int GlobalTime, double rate){
+  double a = 4.14104
+  double b = 6820.53374
+  double u = rand() / (RAND_MAX + 1.0);
+  inv_fun_denom = pow(1-u,1/a);
+
+  double  poreto_distribution = (b/inv_fun_denom)- b;
+  return GlobalTime + poreto_distribution;
+}
+// functions
+double interServiceTime(int GlobalTime, double rate){
   double u = rand() / (RAND_MAX + 1.0);
   double  negativeExponentialNumber = (-1/rate)*log(1-u);
-  return GlobalTime + negativeExponentialNumber;
+  return  negativeExponentialNumber;
 }
 // int lengthPacket(){
 //   return rand()%16 + 1;
@@ -104,6 +114,7 @@ void processArrivelEvent(const Event& A){
   }
   else{
     if (length < MAXBUFEERSIZE){
+
       buffer.push(A);
       length += 1;
     }
