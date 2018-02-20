@@ -8,7 +8,7 @@ Transmitter::Transmitter(int buffer)
     setState(idle);
 }
 
-void Transmitter::processArrivelEvent(const Event &a, int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL)
+void Transmitter::processArrivalEvent(Event &a, int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL)
 {
     mean_queue.insert(std::pair<int, int>(global_time, buffer.size()));
     if((state == idle) && (buffer.size() == 0))
@@ -46,32 +46,32 @@ void Transmitter::processDepartureEvent(int &global_time, std::priority_queue<Ev
     }
 }
 
-void setState(status s)
+void Transmitter::setState(status s)
 {
     state = s;
 }
 
-const status getState()
+const status Transmitter::getState()
 {
     return state;
 }
 
-void setDrop(int d)
+void Transmitter::setDrop(int d)
 {
     drop = d;
 }
 
-const int getDrop()
+const int Transmitter::getDrop()
 {
     return drop;
 }
 
-void setMAXBUFFERSIZE(int m)
+void Transmitter::setMAXBUFFERSIZE(int m)
 {
     MAXBUFFERSIZE = m;
 }
 
-const int getMAXBUFFERSIZE()
+const int Transmitter::getMAXBUFFERSIZE()
 {
     return MAXBUFFERSIZE;
 }

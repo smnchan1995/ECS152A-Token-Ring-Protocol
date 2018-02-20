@@ -10,7 +10,7 @@ enum status {idle, busy};
 
 struct CompareEvent
 {
-  bool operator()(const Event* lhs, const Event* rhs) const
+   bool operator()(const Event* lhs, const Event* rhs) const
   {
      return lhs->getTime() > rhs->getTime();
   }
@@ -27,7 +27,7 @@ class Transmitter
         std::map<int, int> mean_queue;
 
         Transmitter(int buffer);
-        void processArrivelEvent(const Event &a, int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL);
+        void processArrivalEvent(Event &a, int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL);
         void processDepartureEvent(int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL);
 
         void setState(status s);

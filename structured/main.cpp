@@ -17,7 +17,7 @@ struct SingleDataFrame
 
 
 //global stuff
-std::priority_queue<Event*, std::vector<Event*>, CompareEvent> GEL;
+
 int MAXBUFFERSIZE = 0, MAXTIME = 0;//can be any arbitarry number
 double lambda = 0, miue =  0;//arrival rate, service rate
 
@@ -33,6 +33,7 @@ int main()
     while((lambda != 0) && (miue != 0) && (MAXBUFFERSIZE != 0))
     {
         Transmitter server1(MAXBUFFERSIZE);
+        std::priority_queue<Event*, std::vector<Event*>, CompareEvent> GEL;
         int global_time = 0;
         while(global_time<MAXTIME)
         {
@@ -42,7 +43,7 @@ int main()
                 {
                     global_time = n->getTime();
                     GEL.push(new Event(interArrivalTime(global_time, lambda),interArrivalTime(global_time, miue),'a')); // does not have to be in here
-                    server1.processArrivelEvent(n, global_time, GEL);
+                    server1.processArrivalEvent(*n, global_time, GEL);
                 }
                 else if(n->getType() == 'd')
                 {

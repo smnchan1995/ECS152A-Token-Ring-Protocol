@@ -15,7 +15,7 @@ void Event::setTime(int t)
     time = t;
 }
 
-const int Event::getTime()
+int Event::getTime()const
 {
     return time;
 }
@@ -25,7 +25,7 @@ void Event::setServiceTime(int l)
     service_time = l;
 }
 
-const int Event::getServiceTime()
+int Event::getServiceTime()const
 {
     return service_time;
 }
@@ -35,7 +35,7 @@ void Event::setType(char t)
     type = t;
 }
 
-const char Event::getType()
+ char Event::getType()const
 {
     return type;
 }

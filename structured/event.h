@@ -12,13 +12,13 @@ class Event{
         //~Event();
 
         void setTime(int t);
-        const int getTime();
+        int getTime()const;
 
         void setServiceTime(int l);
-        const int getServiceTime();
+         int getServiceTime()const;
 
         void setType(char t);
-        const char getType();
+         char getType()const;
 };
 
 #endif // EVENT_H
