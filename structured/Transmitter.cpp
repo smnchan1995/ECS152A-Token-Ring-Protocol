@@ -4,13 +4,13 @@ Transmitter::Transmitter(int buffer)
 {
     setMAXBUFFERSIZE(buffer);
     setDrop(0);
-    setBusy(0);
+    setBusy(0.0);
     setState(idle);
+    setTotalArea(0);
 }
 
-void Transmitter::processArrivalEvent(Event &a, int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL)
+void Transmitter::processArrivalEvent(Event &a, double &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL)
 {
-    mean_queue.insert(std::pair<int, int>(global_time, buffer.size()));
     if((state == idle) && (buffer.size() == 0))
     {
         state = busy;
@@ -21,24 +21,37 @@ void Transmitter::processArrivalEvent(Event &a, int &global_time, std::priority_
     else if((state == busy) && (buffer.size() < MAXBUFFERSIZE))
     {
         buffer.push(a);
-        busy_time += a.getServiceTime();
-        //update stati
+	Event* m = GEL.top();
+        double temp = getTotalArea();
+        double new_area_to_add = ((m->getTime() - a.getTime()) * buffer.size());
+        setTotalArea(temp + new_area_to_add);
+
     }
     else if((state == busy) && (buffer.size() == MAXBUFFERSIZE))
     {
         drop += 1;
-        //update stati
+        Event* m = GEL.top();
+        double temp = getTotalArea();
+        double new_area_to_add = ((m->getTime() - a.getTime()) * buffer.size());
+        setTotalArea(temp + new_area_to_add);
+
     }
 }
 
-void Transmitter::processDepartureEvent(int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL)
+void Transmitter::processDepartureEvent(Event &d, double &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL)
 {
     if(buffer.size() > 0)
     {
         Event b = buffer.front();
         buffer.pop();
+	busy_time += b.getServiceTime();
         double new_depart_time = global_time + b.getServiceTime();
         GEL.push(new Event(new_depart_time, b.getServiceTime(), 'd'));
+	
+	Event* m = GEL.top();
+        double temp = getTotalArea();
+        double new_area_to_add = ((m->getTime() - d.getTime()) * buffer.size());
+        setTotalArea(temp + new_area_to_add);
     }
     else
     {
@@ -76,12 +89,22 @@ const int Transmitter::getMAXBUFFERSIZE()
     return MAXBUFFERSIZE;
 }
 
-void setBusy(int b)
+void Transmitter::setBusy(double b)
 {
     busy_time = b;
 }
 
-const int getBusy()
+const double Transmitter::getBusy()
 {
     return busy_time;
+}
+
+void Transmitter::setTotalArea(double ta)
+{
+    total_area = ta;
+}
+
+const double Transmitter::getTotalArea()
+{
+    return total_area;
 }

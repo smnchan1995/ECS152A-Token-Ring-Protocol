@@ -20,15 +20,15 @@ class Transmitter
 {
     private:
         status state;
-        int drop, MAXBUFFERSIZE, busy_time;
+        int drop, MAXBUFFERSIZE; 
+	double busy_time, total_area;
 
     public:
         std::queue<Event> buffer;
-        std::map<int, int> mean_queue;
 
         Transmitter(int buffer);
-        void processArrivalEvent(Event &a, int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL);
-        void processDepartureEvent(int &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL);
+        void processArrivalEvent(Event &a, double &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL);
+        void processDepartureEvent(Event &d, double &global_time, std::priority_queue<Event*, std::vector<Event*>, CompareEvent> &GEL);
 
         void setState(status s);
         const status getState();
@@ -39,8 +39,11 @@ class Transmitter
         void setMAXBUFFERSIZE(int m);
         const int getMAXBUFFERSIZE();
 
-        void setBusy(int b);
-        const int getBusy();
+        void setBusy(double b);
+        const double getBusy();
+
+	void setTotalArea(double ta);
+	const double getTotalArea();
 };
 
 #endif // TRANSMITTER_H

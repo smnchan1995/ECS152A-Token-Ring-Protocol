@@ -2,30 +2,30 @@
 
 Event::Event()
 {
-    setTime(0); setServiceTime(0); setType('n');
+    setTime(0.0); setServiceTime(0.0); setType('n');
 }
 
-Event::Event(int t, int l, char c)
+Event::Event(double t, double l, char c)
 {
     setTime(t); setServiceTime(l); setType(c);
 }
 
-void Event::setTime(int t)
+void Event::setTime(double t)
 {
     time = t;
 }
 
-int Event::getTime()const
+double Event::getTime()const
 {
     return time;
 }
 
-void Event::setServiceTime(int l)
+void Event::setServiceTime(double l)
 {
     service_time = l;
 }
 
-int Event::getServiceTime()const
+double Event::getServiceTime()const
 {
     return service_time;
 }
