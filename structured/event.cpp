@@ -12,30 +12,30 @@ Event::Event(int t, int l, char c)
 
 void Event::setTime(int t)
 {
-    this->time = t;
+    time = t;
 }
 
 const int Event::getTime()
 {
-    return this->time;
+    return time;
 }
 
 void Event::setServiceTime(int l)
 {
-    this->service_time = l;
+    service_time = l;
 }
 
 const int Event::getServiceTime()
 {
-    return this->service_time;
+    return service_time;
 }
 
 void Event::setType(char t)
 {
-    this->type = t;
+    type = t;
 }
 
 const char Event::getType()
 {
-    return this->type;
+    return type;
 }
