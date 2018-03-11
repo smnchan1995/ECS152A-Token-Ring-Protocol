@@ -2,12 +2,12 @@
 
 Event::Event()
 {
-    setTime(0.0); setServiceTime(0.0); setType('n');
+    setTime(0.0); setHost(0); setType('n');
 }
 
-Event::Event(double t, double l, char c)
+Event::Event(double t, int h, char c)
 {
-    setTime(t); setServiceTime(l); setType(c);
+    setTime(t); setHost(h); setType(c);
 }
 
 void Event::setTime(double t)
@@ -20,14 +20,14 @@ double Event::getTime()const
     return time;
 }
 
-void Event::setServiceTime(double l)
+void Event::setHost(int h)
 {
-    service_time = l;
+    host = h;
 }
 
-double Event::getServiceTime()const
+double Event::getHost()const
 {
-    return service_time;
+    return host;
 }
 
 void Event::setType(char t)

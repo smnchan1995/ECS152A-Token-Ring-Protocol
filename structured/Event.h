@@ -4,18 +4,19 @@
 
 class Event{
     private:
-        double time, service_time;
+        double time;
+	int host;
         char type;
     public:
         Event();
-        Event(double t,double l, char c);
+        Event(double t,int h, char c);
         //~Event();
 
         void setTime(double t);
         double getTime()const;
 
-        void setServiceTime(double l);
-        double getServiceTime()const;
+        void setHost(int h);
+        int getHost()const;
 
         void setType(char t);
         char getType()const;

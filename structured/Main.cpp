@@ -19,39 +19,74 @@ struct SingleDataFrame
 
 //global stuff
 
-int MAXBUFFERSIZE = 0;//can be any arbitarry number
-double lambda = 0, miue =  0, MAXTIME = 0;//arrival rate, service rate
+int MAXBUFFERSIZE = 0, number_host = 0;//can be any arbitarry number
+double lambda = 0, MAXTIME = 0;//arrival rate, service rate
 
+//NEEDTODO: average global delay, for each simulation
 double rateTime(double rate);
-void getInputs(double &input_lambda, double &input_miue, int &INPUT_MAXBUFFERSIZE, double &INPUT_MAXTIME);
+void getInputs(double &input_lambda, int &input_number_host, int &INPUT_MAXBUFFERSIZE, double &INPUT_MAXTIME);
+
+//random packet size generator
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution<> dis(64, 1518);
 
 std::vector<SingleDataFrame> dataframes;
 //global stuff ends
 
 int main()
 {
-    getInputs(lambda, miue, MAXBUFFERSIZE, MAXTIME);
-    while((lambda != 0) && (miue != 0) && (MAXBUFFERSIZE != 0))
+    getInputs(lambda, number_host, MAXBUFFERSIZE, MAXTIME);
+    while((lambda != 0) && (number_host != 0) && (MAXBUFFERSIZE != 0))
     {
-        Transmitter server1(MAXBUFFERSIZE);
+
+	std::random_device td;
+	std::mt19937 ten(td());
+	std::uniform_int_distribution<> tis(1, number_host);
+
+	for(int i = 0; i < number_host; i++){
+		// NEEDTODO: generate hosts
+	}
+        //Transmitter server1(MAXBUFFERSIZE);
         std::priority_queue<Event*, std::vector<Event*>, CompareEvent> GEL;
-	double global_time = 0;
-	GEL.push(new Event((global_time + rateTime(lambda)),rateTime(miue),'a'));
-        while(global_time<MAXTIME)
+	double global_time = 0; // global time set to 0 at the start of simulation
+	//host should be randomized
+	GEL.push(new Event(0, 1, 't'));
+	for(int i = 0; i < number_host; i++){
+		GEL.push(new Event(((global_time + rateTime(lambda)), i, 'a'));
+	}
+	//GEL.push(new Event((rateTime(lambda), 1, 't'));
+        while(global_time < MAXTIME)
         {
+		int current_host = 0;
                 Event* n = GEL.top();
                 GEL.pop();
                 if(n->getType() == 'a')
                 {
                     global_time = n->getTime();
-                    GEL.push(new Event((global_time + rateTime(lambda)),rateTime(miue),'a')); 
-                    server1.processArrivalEvent(*n, global_time, GEL);
+                    GEL.push(new Event((global_time + rateTime(lambda)), n->getHost(),'a')); 
+                    //create new packet
+		    //dis(gen) = packet size generator, randomize uniformly
+		    //tis(ten) = destination host number genreator, randomize uniformly
+		    Packet new_packet(global_time, dis(gen), tis(ten));
+		    // NEEDTODO: in the queue of same host, push new_packet into current
+		    //server1.processArrivalEvent(*n, global_time, GEL);
                 }
-                else if(n->getType() == 'd')
+                else if(n->getType() == 't')
                 {
+		    //current_host = n->getHost();
                     global_time = n->getTime();
-                    //update
-                    server1.processDepartureEvent(*n, global_time, GEL);
+		    //NEEDTODO: if host's queue is empty, then create next token event to push to gel, but the token event destination host is (n->host_number + 1)
+		    GEL.push(new Event((global_time + 0.000001), n->getHost() + 1,'t'));
+                    //NEEDTODO: if host's queue is not empty, then calculate delay and throughput
+		    //pop all packets from queue
+		    //get size of each packets, divide by 100Mbps, and add all together to get tranmission delay
+		    //process delay = current time - arrive time of the packet, for each packet
+                    //calculate, 4 transmission delay, 4 processing delay = 4 queuing delay + 4 propagation delay
+
+		    GEL.push(new Event((/*calculate*/ + 0.000001), n->getHost() + 1,'t'));
+ 
+		    //server1.processDepartureEvent(*n, global_time, GEL);
                 }
         }
 
@@ -103,7 +138,7 @@ double rateTime(double rate)
     return negative_exponential_number;
 }
 
-void getInputs(double &input_lambda, double &input_miue, int &INPUT_MAXBUFFERSIZE, double &INPUT_MAXTIME)
+void getInputs(double &input_lambda, int &input_number_host, int &INPUT_MAXBUFFERSIZE, double &INPUT_MAXTIME)
 {
     std::cout << "Enter 0 for any variables to exit." << std::endl;
     std::cout << "Enter lambda: ";
@@ -112,8 +147,8 @@ void getInputs(double &input_lambda, double &input_miue, int &INPUT_MAXBUFFERSIZ
 	return;
     std::cout << std::endl;
 
-    std::cout << "Enter miue: ";
-    std::cin >> input_miue;
+    std::cout << "Enter number of hosts: ";
+    std::cin >> input_number_host;
     std::cout << std::endl;
 
     std::cout << "Enter MAXBUFFERSIZE: "; 
@@ -125,7 +160,6 @@ void getInputs(double &input_lambda, double &input_miue, int &INPUT_MAXBUFFERSIZ
     std::cout << std::endl;
     return;
 }
-
 // functions
 // int lengthPacket(){
 //   return rand()%16 + 1;
