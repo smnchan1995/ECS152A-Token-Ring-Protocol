@@ -25,7 +25,7 @@ void Event::setHost(int h)
     host = h;
 }
 
-double Event::getHost()const
+int Event::getHost()const
 {
     return host;
 }

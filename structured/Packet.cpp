@@ -1,4 +1,4 @@
-include "Packet.h"
+#include "Packet.h"
 //random uniform gen for size in main 
 
 Packet::Packet()
@@ -26,7 +26,7 @@ void Packet::setSize(int s)
     size = s;
 }
 
-double Packet::getSize()const
+int Packet::getSize()const
 {
     return size;
 }
@@ -36,7 +36,7 @@ void Packet::setDestination(int d)
     destination = d;
 }
 
-char Packet::getDestination()const
+int Packet::getDestination()const
 {
     return destination;
 }

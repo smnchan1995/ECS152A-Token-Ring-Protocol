@@ -3,7 +3,6 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-
 class Packet{
     private:
         int size, destination;
