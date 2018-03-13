@@ -7,6 +7,7 @@
 #include <queue>
 #include <cmath>
 #include <ctime>
+#include <vector>
 #include "Event.h"
 #include "Transmitter.h"
 
@@ -39,17 +40,22 @@ int main()
     getInputs(lambda, number_host, MAXBUFFERSIZE, MAXTIME);
     while((lambda != 0) && (number_host != 0) && (MAXBUFFERSIZE != 0))
     {
+	int total_bytes = 0;
+	double total_delay = 0.0;
 
 	std::random_device td;
 	std::mt19937 ten(td());
 	std::uniform_int_distribution<> tis(1, number_host);
 
+	std::vector<std::queue<Packet> > number_host_queues;
+
 	for(int i = 0; i < number_host; i++){
 		// NEEDTODO: generate hosts
+		std::queue<Packet> host_queue;
+		number_host_queues.push_back(host_queue);
 	}
-        //Transmitter server1(MAXBUFFERSIZE);
         std::priority_queue<Event*, std::vector<Event*>, CompareEvent> GEL;
-	double global_time = 0; // global time set to 0 at the start of simulation
+	double global_time = 0; //global time set to 0 at the start of simulation
 	//host should be randomized
 	GEL.push(new Event(0, 1, 't'));
 	for(int i = 0; i < number_host; i++){
@@ -58,7 +64,6 @@ int main()
 	//GEL.push(new Event((rateTime(lambda), 1, 't'));
         while(global_time < MAXTIME)
         {
-		int current_host = 0;
                 Event* n = GEL.top();
                 GEL.pop();
                 if(n->getType() == 'a')
@@ -70,24 +75,35 @@ int main()
 		    //tis(ten) = destination host number genreator, randomize uniformly
 		    Packet new_packet(global_time, dis(gen), tis(ten));
 		    // NEEDTODO: in the queue of same host, push new_packet into current
+		    host_queue[n->getHost() - 1].push(new_packet);
 		    //server1.processArrivalEvent(*n, global_time, GEL);
                 }
                 else if(n->getType() == 't')
                 {
-		    //current_host = n->getHost();
                     global_time = n->getTime();
 		    //NEEDTODO: if host's queue is empty, then create next token event to push to gel, but the token event destination host is (n->host_number + 1)
-		    GEL.push(new Event((global_time + 0.000001), n->getHost() + 1,'t'));
-                    //NEEDTODO: if host's queue is not empty, then calculate delay and throughput
-		    //pop all packets from queue
-		    //get size of each packets, divide by 100Mbps, and add all together to get tranmission delay
-		    //process delay = current time - arrive time of the packet, for each packet
-                    //calculate, 4 transmission delay, 4 processing delay = 4 queuing delay + 4 propagation delay
-
-		    GEL.push(new Event((/*calculate*/ + 0.000001), n->getHost() + 1,'t'));
- 
-		    //server1.processDepartureEvent(*n, global_time, GEL);
-                }
+		    if(host_queue[n->getHost() - 1].size() == 0)
+		    {
+		        GEL.push(new Event((global_time + 0.000001), (n->getHost() % number_host) + 1,'t'));
+                    }
+			//NEEDTODO: if host's queue is not empty, then calculate delay and throughput
+		    else if(host_queue[n->getHost() - 1].size() > 0)
+		    {
+			int total_bytes_current_queue = 0;
+			double queue_delay_current = 0;
+			while(host_queue[n->getHost() - 1].size())
+			{
+		        	queue_delay_current += (global_time - host_queue[n->getHost() - 1].front().getArrivalTime()); // queuing delay
+				total_bytes += host_queue[n->getHost() - 1].front().getSize();
+				total_bytes_current_queue += host_queue[n->getHost() - 1].front().getSize();
+				host_queue[n->getHost() - 1].pop();
+			}
+			//propagation delay should be calculated here
+			double delay += ((total_bytes_current_queue * 8)/ 100000000) + queue_delay_current + 0.000001;
+		    	total_delay += (number_host * delay);
+			GEL.push(new Event(((number_host * delay) + 0.000001), (n->getHost() % number_host) + 1,'t'));
+                    }
+		}
         }
 
         //gather statistics
