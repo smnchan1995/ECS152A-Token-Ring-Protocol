@@ -59,7 +59,7 @@ int main()
 	//host should be randomized
 	GEL.push(new Event(0, 1, 't'));
 	for(int i = 0; i < number_host; i++){
-		GEL.push(new Event((global_time + rateTime(lambda)), i, 'a'));
+		GEL.push(new Event((global_time + rateTime(lambda)), (i + 1), 'a'));
 	}
 	//GEL.push(new Event((rateTime(lambda), 1, 't'));
         while(global_time < MAXTIME)
@@ -68,41 +68,57 @@ int main()
                 GEL.pop();
                 if(n->getType() == 'a')
                 {
+		    //std::cout << "a" << global_time << std::endl;
                     global_time = n->getTime();
+		    
                     GEL.push(new Event((global_time + rateTime(lambda)), n->getHost(),'a')); 
                     //create new packet
 		    //dis(gen) = packet size generator, randomize uniformly
 		    //tis(ten) = destination host number genreator, randomize uniformly
 		    Packet new_packet(global_time, dis(gen), tis(ten));
 		    // NEEDTODO: in the queue of same host, push new_packet into current
-		    number_host_queues[n->getHost() - 1].push(new_packet);
+	    	    number_host_queues[n->getHost() - 1].push(new_packet);
+		    delete n;
 		    //server1.processArrivalEvent(*n, global_time, GEL);
+		    //break;
                 }
                 else if(n->getType() == 't')
                 {
+		    //std::cout << "t" << global_time <<" " << n->getHost() << " " <<number_host_queues[n->getHost() - 1].size() << std::endl;
                     global_time = n->getTime();
 		    //NEEDTODO: if host's queue is empty, then create next token event to push to gel, but the token event destination host is (n->host_number + 1)
 		    if(number_host_queues[n->getHost() - 1].size() == 0)
 		    {
-		        GEL.push(new Event((global_time + 0.000001), (n->getHost() % number_host) + 1,'t'));
-                    }
+		        GEL.push(new Event((global_time + 0.00001), (n->getHost() % number_host) + 1,'t'));
+                    	delete n;
+		    }
 			//NEEDTODO: if host's queue is not empty, then calculate delay and throughput
 		    else if(number_host_queues[n->getHost() - 1].size() > 0)
 		    {
 			int total_bytes_current_queue = 0;
 			double queue_delay_current = 0;
-			while(number_host_queues[n->getHost() - 1].size())
+			while(number_host_queues[n->getHost() - 1].size() != 0)
 			{
-		        	queue_delay_current += (global_time - number_host_queues[n->getHost() - 1].front().getArrivalTime()); // queuing delay
+				//check destination of packet
+				int temp = 0;
+				if (n->getHost() > number_host_queues[n->getHost() - 1].front().getDestination()){
+					temp = number_host - (n->getHost()) + number_host_queues[n->getHost() - 1].front().getDestination();
+				}
+				else{
+					temp = number_host_queues[n->getHost() - 1].front().getDestination() - n->getHost();
+				}
+				//instead of packet size, use frame size
+				queue_delay_current = temp * ((0.00001) + ((number_host_queues[n->getHost() - 1].front().getSize() * 8)/ 100000000)) + (global_time - number_host_queues[n->getHost() - 1].front().getArrivalTime());
 				total_bytes += number_host_queues[n->getHost() - 1].front().getSize();
 				total_bytes_current_queue += number_host_queues[n->getHost() - 1].front().getSize();
 				number_host_queues[n->getHost() - 1].pop();
 			}
 			//propagation delay should be calculated here
 			double delay = 0.0;
-			delay += (((total_bytes_current_queue * 8)/ 100000000) + queue_delay_current + 0.000001);
-		    	total_delay += (number_host * delay);
-			GEL.push(new Event(((number_host * delay) + 0.000001), (n->getHost() % number_host) + 1,'t'));
+			delay += (((total_bytes_current_queue * 8)/ 10000000) + 0.00001);
+		    	total_delay += queue_delay_current;
+			delete n;
+			GEL.push(new Event((global_time + (number_host * delay) + 0.00001), (n->getHost() % number_host) + 1,'t'));
                     }
 		}
         }
